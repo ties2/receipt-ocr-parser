@@ -58,14 +58,14 @@ class ImagePreprocessor:
         return cv2.warpPerspective(image, matrix, (max_width, max_height))
 
     def final_cleanup(self, image):
-        """Binarization to make text pop for the OCR engine."""
+        """Converts to grayscale and denoises — DO NOT binarize for PaddleOCR."""
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        # Using OTSU thresholding which automatically finds the best threshold value
-        _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-        # BUG FIX: Convert 1-channel binary image back to 3-channel BGR
-        # so PaddleOCR does not crash when checking img.shape[2]
-        thresh_3_channel = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+        # Light denoise only — preserve gradients for the neural net
+        denoised = cv2.fastNlMeansDenoising(gray, h=10)
+
+        # Return as 3-channel so PaddleOCR doesn't crash on img.shape[2]
+        return cv2.cvtColor(denoised, cv2.COLOR_GRAY2BGR)
 
         return thresh_3_channel
 

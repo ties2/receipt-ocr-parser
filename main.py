@@ -25,7 +25,13 @@ def main(img_path):
     # 5. Information Extraction (Regex logic)
     print("Step 4: Parsing Data...")
     # PaddleOCR's raw output is nested. This loop extracts just the text strings.
-    text_list = [line[1][0] for line in result[0]]
+    # text_list = [line[1][0] for line in result[0]]
+    text_list = []
+    for line in result[0]:
+        try:
+            text_list.append(line[1][0])
+        except (IndexError, TypeError):
+            continue
     # ADD THIS LINE TO DEBUG:
     print(f"DEBUG: Raw Text Found: {text_list}")
     structured_data = parse_information(text_list)

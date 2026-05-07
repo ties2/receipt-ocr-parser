@@ -13,26 +13,20 @@ class OCRHandler:
         )
 
     def read_text(self, img):
-        """Runs the OCR and normalizes the output format for our pipeline."""
         raw_result = self.engine.ocr(img)
 
-        # Safety check for empty results
-        if not raw_result or raw_result[0] is None:
+        if not raw_result or not raw_result[0]:
             return [[]]
 
         img_res = raw_result[0]
         normalized_lines = []
 
-        # --- ADAPTER: Handle new PaddleX Dictionary Format ---
-        if isinstance(img_res, dict) or hasattr(img_res, 'keys'):
+        if isinstance(img_res, dict):
             boxes = img_res.get('dt_polys', [])
-            texts = img_res.get('rec_text', [])
-
-            # Reconstruct into the standard format our visualizer expects: [box, [text, score]]
+            texts = img_res.get('rec_texts', [])   # <-- fixed typo here
             for box, text in zip(boxes, texts):
                 normalized_lines.append([box, [text, 1.0]])
 
-        # --- ADAPTER: Handle Old PaddleOCR List Format ---
         elif isinstance(img_res, list):
             normalized_lines = img_res
 
