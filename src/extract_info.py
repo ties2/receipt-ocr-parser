@@ -1,35 +1,40 @@
 import re
 
 def parse_information(text_list):
-    """
-    Takes a list of strings extracted from OCR and uses regex
-    to find specific fields like Date, Total, and Merchant.
-    """
     data = {
         "merchant_name": "Not Found",
         "date": "Not Found",
         "total_amount": "Not Found"
     }
 
-    # 1. Merchant Name Heuristic: Usually the very first line of a receipt
-    if len(text_list) > 0:
-        data["merchant_name"] = text_list[0]
+    if not text_list:
+        return data
 
-    # Combine all text into one giant string for easier regex searching
+    # 1. Merchant Name: Usually the first 1-2 lines
+    data["merchant_name"] = text_list[0]
+
     full_text = " ".join(text_list)
 
-    # 2. Date Extraction
-    # Matches formats like 12/31/2026, 1-5-26, etc.
-    date_pattern = r'\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b'
-    date_match = re.search(date_pattern, full_text)
-    if date_match:
-        data["date"] = date_match.group(1)
+    # 2. More Robust Date Regex
+    # Matches MM/DD/YYYY, DD-MM-YY, YYYY.MM.DD, etc.
+    date_pattern = r'(\d{1,4}[./-]\d{1,2}[./-]\d{2,4})'
+    date_matches = re.findall(date_pattern, full_text)
+    if date_matches:
+        data["date"] = date_matches[0]
 
-    # 3. Total Amount Extraction
-    # Looks for the word "Total", ignores random characters in between, and finds a price (X.XX)
-    total_pattern = r'Total.*?(\d+\.\d{2})'
-    total_match = re.search(total_pattern, full_text, re.IGNORECASE)
-    if total_match:
-        data["total_amount"] = total_match.group(1)
+    # 3. More Robust Total Amount
+    # We look for "Total", "Amount", "Due", or "Balance"
+    total_keywords = ['total', 'amount', 'due', 'balance', 'grand']
+
+    for i, text in enumerate(text_list):
+        # Check if the current line contains a keyword
+        if any(key in text.lower() for key in total_keywords):
+            # Look at this line and the next 2 lines for a price pattern ($XX.XX)
+            context = " ".join(text_list[i:i+3])
+            # Matches numbers like 10.00, 1,200.50, etc.
+            price_match = re.search(r'(\d+[.,]\d{2})', context)
+            if price_match:
+                data["total_amount"] = price_match.group(1)
+                break # Stop once we find the likely total
 
     return data

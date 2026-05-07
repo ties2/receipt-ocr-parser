@@ -32,6 +32,8 @@ conda create -n rec_ocr python=3.12 -y
 conda activate rec_ocr
 pip install -r requirements.txt
 
+python main.py --image data/sample_receipts/batch2_1/batch2-0001.jpg
+
 ```
 
 ###  Visual Debugging & Verification

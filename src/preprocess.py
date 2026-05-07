@@ -71,6 +71,19 @@ class ImagePreprocessor:
 
     def process(self, image_path):
         img = cv2.imread(image_path)
+
+        # --- NEW SAFEGUARD: Resize massive images ---
+        # If the image is wider or taller than 1500 pixels, scale it down
+        max_dimension = 1500
+        height, width = img.shape[:2]
+
+        if max(height, width) > max_dimension:
+            scale_factor = max_dimension / float(max(height, width))
+            new_width = int(width * scale_factor)
+            new_height = int(height * scale_factor)
+            img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+        # --------------------------------------------
+
         corners = self.get_contour_points(img)
 
         if corners is not None:
