@@ -14,9 +14,9 @@ ENV/
 inference/
 .paddleocr/
 debug/
-data/
+
 # Data and Logs
-data/my_private_receipts/
+data/sample_receipts/
 *.log
 output/*.json
 
