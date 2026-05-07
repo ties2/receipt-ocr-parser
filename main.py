@@ -1,16 +1,39 @@
-# This is a sample Python script.
+import argparse
+from src.preprocess import ImagePreprocessor
+from src.ocr_engine import OCRHandler, draw_visual_debug
+from src.extract_info import parse_information
+import cv2
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+def main(img_path):
+    # 1. Initialize our custom classes
+    preprocessor = ImagePreprocessor()
+    ocr = OCRHandler(lang='en')
 
+    # 2. Preprocess the image (Deskew and binarize)
+    print("Step 1: Preprocessing...")
+    processed_img = preprocessor.process(img_path)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+    # 3. OCR Detection & Recognition
+    print("Step 2: Running OCR...")
+    # Using our custom read_text method from OCRHandler
+    result = ocr.read_text(processed_img)
 
+    # 4. Visualize the bounding boxes
+    print("Step 3: Saving Visual Debugging image...")
+    draw_visual_debug(processed_img, result)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+    # 5. Information Extraction (Regex logic)
+    print("Step 4: Parsing Data...")
+    # PaddleOCR's raw output is nested. This loop extracts just the text strings.
+    text_list = [line[1][0] for line in result[0]]
+    structured_data = parse_information(text_list)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    print("\n--- Final Extracted Data ---")
+    import json
+    print(json.dumps(structured_data, indent=4))
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--image", required=True, help="Path to receipt image")
+    args = parser.parse_args()
+    main(args.image)

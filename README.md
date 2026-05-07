@@ -25,7 +25,7 @@ This project leverages modern approaches to Document AI. While legacy systems re
 
 1. Clone the repository:
 ```bash
-git clone [https://github.com/yourusername/receipt-ocr-parser.git](https://github.com/yourusername/receipt-ocr-parser.git)
+git clone https://github.com/ties2/receipt-ocr-parser
 cd receipt-ocr-parser
 # prepare environment
 conda create -n rec_ocr python=3.12 -y
@@ -33,3 +33,9 @@ conda activate rec_ocr
 pip install -r requirements.txt
 
 ```
+
+###  Visual Debugging & Verification
+To ensure the pipeline is working correctly, check the `data/output/debug_result.jpg` after every run.
+* **Are the green boxes missing text?** The Preprocessor is too aggressive; adjust the threshold in `preprocess.py`.
+* **Are the boxes correct but the words misspelled?** The OCR engine is struggling; try a higher resolution image.
+* **Is the text perfect but the JSON empty?** Your Regex patterns in `extract_info.py` need to be updated for this specific receipt layout.ure:** If the green box and red text are perfectly correct, but your final JSON output is still missing the data, the issue is in the logic. **Fix:** Update the Regular Expressions in `extract_info.py` to account for that specific receipt layout.
