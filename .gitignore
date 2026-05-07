@@ -1,0 +1,29 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.env
+
+# OCR specific: PaddleOCR downloads models automatically to these folders
+inference/
+.paddleocr/
+debug/
+
+# Data and Logs
+data/my_private_receipts/
+*.log
+output/*.json
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
